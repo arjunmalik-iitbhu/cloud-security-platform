@@ -1,0 +1,118 @@
+CREATE OR REPLACE FUNCTION update_timestamp_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TABLE director (
+    id bigserial,
+    name varchar(200) NOT NULL CHECK (name <> ''),
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    CONSTRAINT director_primary_key PRIMARY KEY(id),
+    CONSTRAINT director_unique_name UNIQUE (name)
+);
+
+CREATE TRIGGER trigger_director_updated_at
+BEFORE UPDATE ON director
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp_column();
+
+CREATE TABLE movie (
+    id bigserial,
+    title varchar(1000) NOT NULL CHECK (title <> ''),
+    release_year int NOT NULL,
+    director_id bigint NULL,
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    CONSTRAINT movie_primary_key PRIMARY KEY(id),
+    CONSTRAINT movie_foreign_key_director_id FOREIGN KEY (director_id) REFERENCES director(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT movie_unique_title UNIQUE (title)
+);
+
+CREATE TRIGGER trigger_movie_updated_at
+BEFORE UPDATE ON movie
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp_column();
+
+CREATE TABLE movie_rating (
+    id bigserial,
+    movie_id bigint,
+    comment text NOT NULL DEFAULT '',
+    story int NOT NULL DEFAULT 4,
+    direction int NOT NULL DEFAULT 4,
+    acting int NOT NULL DEFAULT 4,
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    CONSTRAINT movie_rating_primary_key PRIMARY KEY(id),
+    CONSTRAINT movie_rating_foreign_key_movie_id FOREIGN KEY (movie_id) REFERENCES movie(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TRIGGER trigger_movie_rating_updated_at
+BEFORE UPDATE ON movie_rating
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp_column();
+
+CREATE TABLE actor (
+    id bigserial,
+    name varchar(200) NOT NULL CHECK (name <> ''),
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    CONSTRAINT actor_primary_key PRIMARY KEY(id),
+    CONSTRAINT actor_unique_name UNIQUE (name)
+);
+
+CREATE TRIGGER trigger_actor_updated_at
+BEFORE UPDATE ON actor
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp_column();
+
+CREATE TABLE movie_to_actor (
+    id bigserial,
+    movie_id bigint NOT NULL,
+    actor_id bigint NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    CONSTRAINT movie_to_actor_primary_key PRIMARY KEY(id),
+    CONSTRAINT movie_to_actor_foreign_key_movie_id FOREIGN KEY (movie_id) REFERENCES movie(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT movie_to_actor_foreign_key_actor_id FOREIGN KEY (actor_id) REFERENCES actor(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT movie_to_actor_unique_movie_id_actor_id UNIQUE (movie_id, actor_id)
+);
+
+CREATE TRIGGER trigger_movie_to_actor_updated_at
+BEFORE UPDATE ON movie_to_actor
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp_column();
+
+CREATE TABLE genre (
+    id bigserial,
+    name varchar(200) NOT NULL CHECK (name <> ''),
+    CONSTRAINT genre_primary_key PRIMARY KEY(id),
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    CONSTRAINT genre_unique_name UNIQUE (name)
+);
+
+CREATE TRIGGER trigger_genre_updated_at
+BEFORE UPDATE ON genre
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp_column();
+
+CREATE TABLE movie_to_genre (
+    id bigserial,
+    movie_id bigint NOT NULL,
+    genre_id bigint NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    CONSTRAINT movie_to_genre_primary_key PRIMARY KEY(id),
+    CONSTRAINT movie_to_genre_foreign_key_movie_id FOREIGN KEY (movie_id) REFERENCES movie(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT movie_to_genre_foreign_key_genre_id FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT movie_to_genre_unique_movie_id_genre_id UNIQUE (movie_id, genre_id)
+);
+
+CREATE TRIGGER trigger_movie_to_genre_updated_at
+BEFORE UPDATE ON movie_to_genre
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp_column();

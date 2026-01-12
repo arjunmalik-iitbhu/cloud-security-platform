@@ -17,7 +17,7 @@ echo "POSTGRES_HOST is set as localhost in cspm-api/.env. Please update to docke
 
 cd ${ROOT_FOLDER}/cspm-api
 docker build -t cspm-api .
-docker run -it -d -p 8000:8000 -p 5432:5432 cspm-api
+docker run -it -d -p 8000:8000 cspm-api
 
 cd ${ROOT_FOLDER}/cspm-ui
 docker build -t cspm-ui .
