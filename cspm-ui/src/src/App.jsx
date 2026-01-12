@@ -1,33 +1,91 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
+import { activity, moreDown, moveUp, react, refresh } from './assets'
 import viteLogo from '/vite.svg'
 import './App.css'
 
+const DEFAULT_URI = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Cube_3d_in_sharp_solid_style.svg/1024px-Cube_3d_in_sharp_solid_style.svg.png';
+
+const OPTIONS = [
+  {value: "all", name: "All Risk"},
+  {value: "low-risk", name: "Low Risk"},
+  {value: "high-risk", name: "High Risk"},
+];
+
 function App() {
   const [count, setCount] = useState(0)
+  const [scannedAssets, setScannedAssets] = useState(0)
+  const [lowRiskAssets, setLowRiskAssets] = useState(0)
+  const [highRiskAssets, setHighRiskAssets] = useState(0)
+  const [resources, setResources] = useState([])
+  const fetchAnalysis = () => {};
+
+  const onSubmit = () => {
+    document.getElementsByClassName['dialog'][0].close()
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+      <div className='top-panel'>
+        <button onClick={fetchAnalysis}>
+          <img src={refresh} />
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+        <button onClick={document.getElementsByClassName['dialog'][0].showModal()}>
+          Enter AWS Credential
+        </button>
+        <dialog className='dialog'>
+          <p>AWS Access Key</p>
+          <input placeholder='Value' />
+          <p>AWS Secret Access Key</p>
+          <input placeholder='Value' />
+          <p>Message [Optional]</p>
+          <button onClick={document.getElementsByClassName['dialog'][0].close}>Close</button>
+          <button onClick={onSubmit}>Sumbit</button>
+        </dialog>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+      <h1>{(lowRiskAssets/(scannedAssets || 1)) > 0.5 ? "Low Risk 🟢": "High Risk 🔴"}</h1>
+      <div className="cards">
+        <div className="card-1">
+          <button onClick={() => setCount((count) => count + 1)}>
+            count is {count}
+          </button>
+          <p>
+            Scanned Assets
+          </p>
+          <p>
+            {{ scannedAssets }} <img src={{ activity }} />
+          </p>
+        </div>
+        <div className="card-2">
+          <p>
+            Low Risk Assets
+          </p>
+          <p>
+            {{ lowRiskAssets }} <img src={{ activity }} />
+          </p>
+        </div>
+        <div className="card-3">
+          <p>
+            High Risk Assets
+          </p>
+          <p>
+            {{ highRiskAssets }} <img src={{ activity }} />
+          </p>
+        </div>
+      </div>
+      <p className="resources">
+        Resources
+        <select>
+          {{ ...OPTIONS.map((elem, id) => <option id={id} value={elem.value}>{elem.name}</option>)}}
+        </select>
       </p>
+      <table>
+        <tc><td>Resource</td><td>Type</td><td>Status</td><td>Risk</td></tc>
+        {
+          resources.map(({resource, type, status, risk}, id) => (
+            <tr id={id}><td>{getLogo[type]}{resource}</td><td>{type}</td><td>{status}</td><td>{risk}</td></tr>
+          ))
+        }
+      </table>
     </>
   )
 }
