@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from . import actor, director, genre, movie, movie_rating
+from . import credential, analysis
 
 router = APIRouter(
     prefix="/v1",
@@ -8,8 +8,5 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-router.include_router(actor.router)
-router.include_router(director.router)
-router.include_router(genre.router)
-router.include_router(movie.router)
-router.include_router(movie_rating.router)
+router.include_router(credential.router)
+router.include_router(analysis.router)
