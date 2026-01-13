@@ -1,6 +1,16 @@
 import { useState } from 'react'
-import { activity, moreDown, moveUp, react, refresh } from './assets'
 import viteLogo from '/vite.svg'
+import activity from '/activity.svg'
+import moreDown from '/moreDown.svg'
+import moreUp from '/moreUp.svg'
+import refresh from '/refresh.svg'
+
+export {
+    activity,
+    moreDown,
+    moreUp,
+    refresh
+}
 import './App.css'
 
 const DEFAULT_URI = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Cube_3d_in_sharp_solid_style.svg/1024px-Cube_3d_in_sharp_solid_style.svg.png';
