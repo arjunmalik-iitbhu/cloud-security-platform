@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import activity from '/activity.svg'
 import moreDown from '/moreDown.svg'
 import moreUp from '/moreUp.svg'
@@ -7,6 +7,8 @@ import refresh from '/refresh.svg'
 export { activity, moreDown, moreUp, refresh }
 import './App.css'
 
+API_BASE_URL = import.meta.API_BASE_URL
+
 const OPTIONS = [
   { value: 'all', name: 'All Risk' },
   { value: 'low-risk', name: 'Low Risk' },
@@ -14,35 +16,98 @@ const OPTIONS = [
 ]
 
 function App() {
+  const credentialRef = useRef("")
+  const accessKeyRef = useRef("")
+  const secrectAccessKeyRef = useRef("")
   const [scannedAssets, setScannedAssets] = useState(0)
   const [lowRiskAssets, setLowRiskAssets] = useState(0)
   const [highRiskAssets, setHighRiskAssets] = useState(0)
   const [resources, setResources] = useState([])
-  const fetchAnalysis = () => {}
-
+  const riskFilterRef = useRef(OPTIONS[0].value)
+  const fetchAnalysis = async () => {
+    if (!credentialRef.current) throw new Error("Empty credential id")
+    const resp = await fetch(
+      `${API_BASE_URL}/version/v1/analysis`,
+      {
+        method: "POST",
+        headers: {},
+        data: {
+          credentialId: credentialRef.current,
+          resourceRisk: riskFilterRef.current
+        },
+      }
+    )
+    const {
+      scannedAssets,
+      lowRiskAssets,
+      highRiskAssets,
+      resources,
+    } = (await resp.json()) || {}
+    setScannedAssets(scannedAssets)
+    setLowRiskAssets(lowRiskAssets)
+    setHighRiskAssets(highRiskAssets)
+    setResources(resources)
+  }
   const showSecretDialog = () => {
     document.getElementsByClassName['secrets-dialog'][0]?.showModal()
   }
   const closeSecretDialog = () => {
     document.getElementsByClassName['secrets-dialog'][0]?.close()
   }
-  const onSubmit = () => {
+  const onSubmit = async () => {
+    const accessKey = document.getElementsByClassName['secrets-dialog-access-key'][0]?.value || ""
+    const secretAccessKey = document.getElementsByClassName['secrets-dialog-secret-access-key'][0]?.value || ""
+    if (!accessKey) {
+      closeSecretDialog()
+      alert('Empty access key. Please provide a value')
+      return;
+    }
+    if (!secretAccessKey) {
+      closeSecretDialog()
+      alert('Empty secret access key. Please provide a value')
+      return;
+    }
+    if (accessKeyRef.current && accessKey === accessKeyRef.current) {
+      closeSecretDialog()
+      alert('Access key is duplicate. Please provide different value')
+      return;
+    }
+    if (secrectAccessKeyRef.current && secretAccessKey === secrectAccessKeyRef.current) {
+      closeSecretDialog()
+      alert('Secret access key is duplicate. Please provide different value')
+      return;
+    }
+    accessKeyRef.current = accessKey
+    secrectAccessKeyRef.current = secretAccessKey
+    const resp = await fetch(
+      `${API_BASE_URL}/version/v1/credential`,
+      {
+        method: "POST",
+        headers: {},
+        data: {
+          accessKey,
+          secretAccessKey
+        },
+      }
+    )
+    credentialRef.value = (await resp.json())?.id || ""
+    await fetchAnalysis()
     closeSecretDialog()
   }
 
   return (
     <div className="cspm">
       <div className="top-panel">
-        <button className="refresh-button">
+        <button className="refresh-button" onClick={fetchAnalysis} disabled={!credentialRef.current}>
           <img src={refresh} />
         </button>
         <dialog className="secrets-dialog">
           <p>AWS Access Key</p>
-          <input placeholder="Value" />
+          <input className="secrets-dialog-access-key" placeholder="Value" />
           <p>AWS Secret Access Key</p>
-          <input placeholder="Value" />
+          <input className="secrets-dialog-secret-access-key" placeholder="Value" />
           <p>Message [Optional]</p>
-          <input placeholder="Value" />
+          <input className="secrets-dialog-message" placeholder="Value" />
           <button onClick={closeSecretDialog}>Close</button>
           <button onClick={onSubmit}>Sumbit</button>
         </dialog>
@@ -81,7 +146,7 @@ function App() {
         <div className="resources-filter">
           <select>
             {OPTIONS.map((elem, id) => (
-              <option id={id} value={elem.value}>
+              <option id={id} value={elem.value} selected={elem.value === riskFilterRef.current}>
                 {elem.name}
               </option>
             ))}
@@ -98,7 +163,7 @@ function App() {
             {resources.map(({ resource, type, status, risk }, id) => (
               <tr id={id}>
                 <td>
-                  {getLogo[type]}
+                  {/* {getResourceIcon[type]} */}
                   {resource}
                 </td>
                 <td>{type}</td>
