@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import activity from '/activity.svg'
 import moreDown from '/moreDown.svg'
 import moreUp from '/moreUp.svg'
@@ -18,6 +18,7 @@ const OPTIONS = [
 ]
 
 function App() {
+  const dialogRef = useRef(null)
   const credentialRef = useRef("")
   const accessKeyRef = useRef("")
   const secrectAccessKeyRef = useRef("")
@@ -51,10 +52,10 @@ function App() {
     setResources(resources)
   }
   const showSecretDialog = () => {
-    document.getElementsByClassName['secrets-dialog'][0]?.showModal()
+    dialogRef.current?.showModal()
   }
   const closeSecretDialog = () => {
-    document.getElementsByClassName['secrets-dialog'][0]?.close()
+    dialogRef.current?.close()
   }
   const onSubmit = async () => {
     const accessKey = document.getElementsByClassName['secrets-dialog-access-key'][0]?.value || ""
@@ -103,7 +104,7 @@ function App() {
         <button className="refresh-button" onClick={fetchAnalysis} disabled={!credentialRef.current}>
           <img src={refresh} />
         </button>
-        <dialog className="secrets-dialog">
+        <dialog ref={dialogRef} className="secrets-dialog">
           <p>AWS Access Key</p>
           <input className="secrets-dialog-access-key" placeholder="Value" />
           <p>AWS Secret Access Key</p>
