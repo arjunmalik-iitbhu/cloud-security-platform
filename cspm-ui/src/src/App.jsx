@@ -117,7 +117,7 @@ function App() {
           <input className="secrets-dialog-message" placeholder="Value" />
           <div className="secrets-dialog-buttons">
             <button onClick={closeSecretDialog}>Close</button>
-            <button onClick={onSubmit}>Sumbit</button>
+            <button onClick={onSubmit}>Submit</button>
           </div>
         </dialog>
         <button onClick={showSecretDialog} className="secrets-button">
