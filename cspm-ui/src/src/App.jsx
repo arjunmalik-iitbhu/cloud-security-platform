@@ -22,10 +22,10 @@ function App() {
 
   const showSecretDialog = () => {
     document.getElementsByClassName['secrets-dialog'][0]?.showModal()
-  };
+  }
   const closeSecretDialog = () => {
     document.getElementsByClassName['secrets-dialog'][0]?.close()
-  };
+  }
   const onSubmit = () => {
     closeSecretDialog()
   }
@@ -50,43 +50,41 @@ function App() {
           Enter AWS Credential
         </button>
       </div>
-      <h1 className="title">{lowRiskAssets / (scannedAssets || 1) > 0.5 ? 'Low Risk 🟢' : 'High Risk 🔴'}</h1>
+      <h1 className="title">
+        {lowRiskAssets / (scannedAssets || 1) > 0.5 ? 'Low Risk 🟢' : 'High Risk 🔴'}
+      </h1>
       <div className="cards">
         <div className="card-1">
           <div className="card-title">Scanned Assets</div>
           <div className="card-value">
-            <p>{ scannedAssets }</p>
-            <img src={ activity } />
+            <p>{scannedAssets}</p>
+            <img src={activity} />
           </div>
         </div>
         <div className="card-2">
           <div className="card-title">Low Risk Assets</div>
           <div className="card-value">
-            <p>{ lowRiskAssets }</p>
-            <img src={ activity } />
+            <p>{lowRiskAssets}</p>
+            <img src={activity} />
           </div>
         </div>
         <div className="card-3">
           <div className="card-title">High Risk Assets</div>
           <div className="card-value">
-            <p>{ highRiskAssets }</p>
-            <img src={ activity } />
+            <p>{highRiskAssets}</p>
+            <img src={activity} />
           </div>
         </div>
       </div>
       <div className="resources">
-        <p className="resources-title">
-          Resources
-        </p>
+        <p className="resources-title">Resources</p>
         <div className="resources-filter">
           <select>
-              {
-                OPTIONS.map((elem, id) => (
-                  <option id={id} value={elem.value}>
-                    {elem.name}
-                  </option>
-                ))
-              }
+            {OPTIONS.map((elem, id) => (
+              <option id={id} value={elem.value}>
+                {elem.name}
+              </option>
+            ))}
           </select>
         </div>
         <div className="resources-table">
@@ -108,7 +106,7 @@ function App() {
                 <td>{risk}</td>
               </tr>
             ))}
-        </table>
+          </table>
         </div>
       </div>
     </div>

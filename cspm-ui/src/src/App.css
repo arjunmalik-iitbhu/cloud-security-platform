@@ -101,7 +101,7 @@ body {
         background-color: var(--background-color-white);
       }
       padding-right: 3rem;
-      align-self: flex-end
+      align-self: flex-end;
     }
     .resources-table {
       margin: 1rem;
