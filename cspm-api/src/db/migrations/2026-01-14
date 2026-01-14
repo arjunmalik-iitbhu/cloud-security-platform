@@ -1,0 +1,75 @@
+CREATE OR REPLACE FUNCTION update_timestamp_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TABLE cloud (
+    id bigserial,
+    name varchar(200) NOT NULL CHECK (name <> ''),
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    CONSTRAINT cloud_primary_key PRIMARY KEY(id),
+    CONSTRAINT cloud_unique_name UNIQUE (name)
+);
+
+CREATE TRIGGER trigger_cloud_updated_at
+BEFORE UPDATE ON cloud
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp_column();
+
+CREATE TABLE credential (
+    id bigserial,
+    name varchar(1000) NOT NULL CHECK (name <> ''),
+    cloud_id bigint NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    CONSTRAINT credential_primary_key PRIMARY KEY(id),
+    CONSTRAINT credential_foreign_key_cloud_id FOREIGN KEY (cloud_id) REFERENCES cloud(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT credential_unique_name UNIQUE (name)
+);
+
+CREATE TRIGGER trigger_credential_updated_at
+BEFORE UPDATE ON credential
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp_column();
+
+CREATE TABLE resource (
+    id bigserial,
+    external_resource_id varchar(2000),
+    type varchar(200) NOT NULL DEFAULT '',
+    details json NOT NULL DEFAULT {},
+    cloud_id bigint NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    CONSTRAINT resource_primary_key PRIMARY KEY(id),
+    CONSTRAINT resource_foreign_key_cloud_id FOREIGN KEY (cloud_id) REFERENCES cloud(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TRIGGER trigger_cloud_updated_at
+BEFORE UPDATE ON cloud
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp_column();
+
+CREATE TYPE resource_status AS ENUM ('running', 'stopped');
+CREATE TYPE resource_risk AS ENUM ('low', 'high');
+
+CREATE TABLE analysis (
+    id bigserial,
+    credential_id bigint NOT NULL,
+    resource_id bigint NOT NULL,
+    current_resource_status resource_status,
+    current_resource_risk resource_risk,
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    CONSTRAINT analysis_primary_key PRIMARY KEY(id),
+    CONSTRAINT analysis_foreign_key_credential_id FOREIGN KEY (credential_id) REFERENCES credential(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT analysis_foreign_key_resource_id FOREIGN KEY (resource_id) REFERENCES resource(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TRIGGER trigger_analysis_updated_at
+BEFORE UPDATE ON analysis
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp_column();
