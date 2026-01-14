@@ -42,7 +42,7 @@ function App() {
           <p>AWS Secret Access Key</p>
           <input placeholder="Value" />
           <p>Message [Optional]</p>
-          <input placeholder="Value" /> 
+          <input placeholder="Value" />
           <button onClick={closeSecretDialog}>Close</button>
           <button onClick={onSubmit}>Sumbit</button>
         </dialog>
