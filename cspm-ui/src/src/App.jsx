@@ -18,10 +18,14 @@ const OPTIONS = [
 ]
 
 function App() {
-  const dialogRef = useRef(null)
+  const dialogElementRef = useRef(null)
+  const accessKeyInputRef = useRef(null)
+  const secretAccessKeyInputRef = useRef(null)
+
   const credentialRef = useRef("")
   const accessKeyRef = useRef("")
-  const secrectAccessKeyRef = useRef("")
+  const secretAccessKeyRef = useRef("")
+
   const [scannedAssets, setScannedAssets] = useState(0)
   const [lowRiskAssets, setLowRiskAssets] = useState(0)
   const [highRiskAssets, setHighRiskAssets] = useState(0)
@@ -52,14 +56,14 @@ function App() {
     setResources(resources)
   }
   const showSecretDialog = () => {
-    dialogRef.current?.showModal()
+    dialogElementRef?.current?.showModal()
   }
   const closeSecretDialog = () => {
-    dialogRef.current?.close()
+    dialogElementRef?.current?.close()
   }
   const onSubmit = async () => {
-    const accessKey = document.getElementsByClassName['secrets-dialog-access-key'][0]?.value || ""
-    const secretAccessKey = document.getElementsByClassName['secrets-dialog-secret-access-key'][0]?.value || ""
+    const accessKey = accessKeyInputRef?.current?.value || ""
+    const secretAccessKey = secretAccessKeyInputRef?.current?.value || ""
     if (!accessKey) {
       closeSecretDialog()
       alert('Empty access key. Please provide a value')
@@ -75,13 +79,13 @@ function App() {
       alert('Access key is duplicate. Please provide different value')
       return;
     }
-    if (secrectAccessKeyRef.current && secretAccessKey === secrectAccessKeyRef.current) {
+    if (secretAccessKeyRef.current && secretAccessKey === secretAccessKeyRef.current) {
       closeSecretDialog()
       alert('Secret access key is duplicate. Please provide different value')
       return;
     }
     accessKeyRef.current = accessKey
-    secrectAccessKeyRef.current = secretAccessKey
+    secretAccessKeyRef.current = secretAccessKey
     const resp = await fetch(
       `${config.API_BASE_URL}/version/v1/credential`,
       {
@@ -93,7 +97,7 @@ function App() {
         },
       }
     )
-    credentialRef.value = (await resp.json())?.id || ""
+    credentialRef.current = (await resp.json())?.id || ""
     await fetchAnalysis()
     closeSecretDialog()
   }
@@ -104,11 +108,11 @@ function App() {
         <button className="refresh-button" onClick={fetchAnalysis} disabled={!credentialRef.current}>
           <img src={refresh} />
         </button>
-        <dialog ref={dialogRef} className="secrets-dialog">
+        <dialog ref={dialogElementRef} className="secrets-dialog">
           <p>AWS Access Key</p>
-          <input className="secrets-dialog-access-key" placeholder="Value" />
+          <input ref={accessKeyInputRef} className="secrets-dialog-access-key" placeholder="Value" />
           <p>AWS Secret Access Key</p>
-          <input className="secrets-dialog-secret-access-key" placeholder="Value" />
+          <input ref={secretAccessKeyInputRef} className="secrets-dialog-secret-access-key" placeholder="Value" />
           <p>Message [Optional]</p>
           <input className="secrets-dialog-message" placeholder="Value" />
           <button onClick={closeSecretDialog}>Close</button>
