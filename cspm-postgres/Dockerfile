@@ -2,7 +2,6 @@ FROM --platform=linux/amd64 postgres:18.1-alpine
 
 ENV LANG="en_US.UTF-8"
 ENV LC_ALL="en_US.UTF-8"
-
 ENV POSTGRES_INITDB_ARGS '--locale="en_US.utf8" --encoding="UTF8"'
 
 ARG CSPM_POSTGRES_DB=cspm
