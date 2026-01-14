@@ -8,7 +8,7 @@ CSPM_POSTGRES_PASSWORD=[MY_PASSWORD]
 
 cd ${ROOT_FOLDER}/postgres
 docker build --build-arg CSPM_POSTGRES_PASSWORD=${CSPM_POSTGRES_PASSWORD} -t cspm-postgres .
-docker run -it -d cspm-postgres --name cspm-postgres
+docker run --name cspm-postgres -it -d cspm-postgres
 docker exec -it cspm-postgres "psql -U cspm -W -d cspm -a -f ${ROOT_FOLDER}/cspm-api/src/db/migrations/2026-01-03"
 
 echo "sed command may work. Please try editing cspm-api/.env file without sed" && cd ${ROOT_FOLDER}/cspm-api && sed -e "/s/POSTGRES_PASSWORD=\"\"/POSTGRES_PASSWORD=\"${CSPM_POSTGRES_PASSWORD}\"/g" -i .env

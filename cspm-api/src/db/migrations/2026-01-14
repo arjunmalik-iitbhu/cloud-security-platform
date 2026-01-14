@@ -40,7 +40,7 @@ CREATE TABLE resource (
     id bigserial,
     external_resource_id varchar(2000),
     type varchar(200) NOT NULL DEFAULT '',
-    details json NOT NULL DEFAULT {},
+    details json NOT NULL DEFAULT '{}',
     cloud_id bigint NOT NULL,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp,
@@ -48,8 +48,8 @@ CREATE TABLE resource (
     CONSTRAINT resource_foreign_key_cloud_id FOREIGN KEY (cloud_id) REFERENCES cloud(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TRIGGER trigger_cloud_updated_at
-BEFORE UPDATE ON cloud
+CREATE TRIGGER trigger_resource_updated_at
+BEFORE UPDATE ON resource
 FOR EACH ROW
 EXECUTE FUNCTION update_timestamp_column();
 
@@ -73,3 +73,5 @@ CREATE TRIGGER trigger_analysis_updated_at
 BEFORE UPDATE ON analysis
 FOR EACH ROW
 EXECUTE FUNCTION update_timestamp_column();
+
+INSERT INTO cloud (name) VALUES ('Amazon Web Services'), ('Google Cloud Platform'), ('Microsoft Azure');
