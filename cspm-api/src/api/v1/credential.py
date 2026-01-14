@@ -30,11 +30,17 @@ async def read_credentials(
 
 
 @router.get("/credential/{credential_id}", response_model=CredentialRes)
-async def read_credential(credential_id: str, session: AsyncSession = Depends(get_session)):
-    result = await session.exec(select(Credential).where(Credential.id == int(credential_id)))
+async def read_credential(
+    credential_id: str, session: AsyncSession = Depends(get_session)
+):
+    result = await session.exec(
+        select(Credential).where(Credential.id == int(credential_id))
+    )
     credential = result.first()
     if not credential or not credential.id:
-        raise HTTPException(status_code=404, detail=f"Credential {credential_id} not found")
+        raise HTTPException(
+            status_code=404, detail=f"Credential {credential_id} not found"
+        )
     return CredentialRes(**credential.model_dump())
 
 
@@ -42,11 +48,15 @@ async def read_credential(credential_id: str, session: AsyncSession = Depends(ge
     "/credential/{credential_id}",
     responses={403: {"description": "Operation forbidden"}},
 )
-async def update_credential(credential_id: str, session: AsyncSession = Depends(get_session)):
+async def update_credential(
+    credential_id: str, session: AsyncSession = Depends(get_session)
+):
     return HTTPException(status_code=403, detail=f"Operation forbidden")
 
 
-@router.post("/credential", response_model=Credential, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/credential", response_model=Credential, status_code=status.HTTP_201_CREATED
+)
 async def create_credential(
     credentialReq: CredentialCreateReq, session: AsyncSession = Depends(get_session)
 ):
