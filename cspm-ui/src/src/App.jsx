@@ -7,7 +7,9 @@ import refresh from '/refresh.svg'
 export { activity, moreDown, moreUp, refresh }
 import './App.css'
 
-API_BASE_URL = import.meta.API_BASE_URL
+const config = {
+  API_BASE_URL: import.meta.API_BASE_URL
+}
 
 const OPTIONS = [
   { value: 'all', name: 'All Risk' },
@@ -27,7 +29,7 @@ function App() {
   const fetchAnalysis = async () => {
     if (!credentialRef.current) throw new Error("Empty credential id")
     const resp = await fetch(
-      `${API_BASE_URL}/version/v1/analysis`,
+      `${config.API_BASE_URL}/version/v1/analysis`,
       {
         method: "POST",
         headers: {},
@@ -80,7 +82,7 @@ function App() {
     accessKeyRef.current = accessKey
     secrectAccessKeyRef.current = secretAccessKey
     const resp = await fetch(
-      `${API_BASE_URL}/version/v1/credential`,
+      `${config.API_BASE_URL}/version/v1/credential`,
       {
         method: "POST",
         headers: {},
@@ -144,9 +146,9 @@ function App() {
       <div className="resources">
         <p className="resources-title">Resources</p>
         <div className="resources-filter">
-          <select>
+          <select defaultValue={riskFilterRef.current}>
             {OPTIONS.map((elem, id) => (
-              <option id={id} value={elem.value} selected={elem.value === riskFilterRef.current}>
+              <option id={id} value={elem.value} key={id}>
                 {elem.name}
               </option>
             ))}
@@ -154,23 +156,27 @@ function App() {
         </div>
         <div className="resources-table">
           <table>
-            <tr className="resources-table-header">
-              <th>Resource</th>
-              <th>Type</th>
-              <th>Status</th>
-              <th>Risk</th>
-            </tr>
-            {resources.map(({ resource, type, status, risk }, id) => (
-              <tr id={id}>
-                <td>
-                  {/* {getResourceIcon[type]} */}
-                  {resource}
-                </td>
-                <td>{type}</td>
-                <td>{status}</td>
-                <td>{risk}</td>
+            <thead>
+              <tr className="resources-table-header">
+                <th>Resource</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Risk</th>
               </tr>
-            ))}
+            </thead>
+            <tbody>
+              {resources.map(({ resource, type, status, risk }, id) => (
+                <tr id={id}>
+                  <td>
+                    {/* {getResourceIcon[type]} */}
+                    {resource}
+                  </td>
+                  <td>{type}</td>
+                  <td>{status}</td>
+                  <td>{risk}</td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
       </div>
