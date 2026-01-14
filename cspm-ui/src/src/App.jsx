@@ -115,8 +115,10 @@ function App() {
           <input ref={secretAccessKeyInputRef} className="secrets-dialog-secret-access-key" placeholder="Value" />
           <p>Message [Optional]</p>
           <input className="secrets-dialog-message" placeholder="Value" />
-          <button onClick={closeSecretDialog}>Close</button>
-          <button onClick={onSubmit}>Sumbit</button>
+          <div className="secrets-dialog-buttons">
+            <button onClick={closeSecretDialog}>Close</button>
+            <button onClick={onSubmit}>Sumbit</button>
+          </div>
         </dialog>
         <button onClick={showSecretDialog} className="secrets-button">
           Enter AWS Credential

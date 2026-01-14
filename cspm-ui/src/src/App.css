@@ -37,6 +37,17 @@ body {
       background-color: var(--background-color-black);
       color: var(--text-white);
     }
+    .secrets-dialog {
+      .secrets-dialog-buttons {
+        display: flex;
+        padding-top: 2rem;
+        gap: 1rem;
+        button {
+          background-color: var(--background-color-black);
+          color: var(--color-white);
+        }
+      }
+    }
     .refresh-button {
       font-size: xx-small;
       background-color: var(--background-color-white);
