@@ -8,7 +8,7 @@ export { activity, moreDown, moreUp, refresh }
 import './App.css'
 
 const config = {
-  API_BASE_URL: import.meta.API_BASE_URL
+  API_BASE_URL: import.meta.API_BASE_URL,
 }
 
 const OPTIONS = [
@@ -22,9 +22,9 @@ function App() {
   const accessKeyInputRef = useRef(null)
   const secretAccessKeyInputRef = useRef(null)
 
-  const credentialRef = useRef("")
-  const accessKeyRef = useRef("")
-  const secretAccessKeyRef = useRef("")
+  const credentialRef = useRef('')
+  const accessKeyRef = useRef('')
+  const secretAccessKeyRef = useRef('')
 
   const [scannedAssets, setScannedAssets] = useState(0)
   const [lowRiskAssets, setLowRiskAssets] = useState(0)
@@ -32,24 +32,16 @@ function App() {
   const [resources, setResources] = useState([])
   const riskFilterRef = useRef(OPTIONS[0].value)
   const fetchAnalysis = async () => {
-    if (!credentialRef.current) throw new Error("Empty credential id")
-    const resp = await fetch(
-      `${config.API_BASE_URL}/version/v1/analysis`,
-      {
-        method: "POST",
-        headers: {},
-        data: {
-          credentialId: credentialRef.current,
-          resourceRisk: riskFilterRef.current
-        },
-      }
-    )
-    const {
-      scannedAssets,
-      lowRiskAssets,
-      highRiskAssets,
-      resources,
-    } = (await resp.json()) || {}
+    if (!credentialRef.current) throw new Error('Empty credential id')
+    const resp = await fetch(`${config.API_BASE_URL}/version/v1/analysis`, {
+      method: 'POST',
+      headers: {},
+      data: {
+        credentialId: credentialRef.current,
+        resourceRisk: riskFilterRef.current,
+      },
+    })
+    const { scannedAssets, lowRiskAssets, highRiskAssets, resources } = (await resp.json()) || {}
     setScannedAssets(scannedAssets)
     setLowRiskAssets(lowRiskAssets)
     setHighRiskAssets(highRiskAssets)
@@ -62,42 +54,39 @@ function App() {
     dialogElementRef?.current?.close()
   }
   const onSubmit = async () => {
-    const accessKey = accessKeyInputRef?.current?.value || ""
-    const secretAccessKey = secretAccessKeyInputRef?.current?.value || ""
+    const accessKey = accessKeyInputRef?.current?.value || ''
+    const secretAccessKey = secretAccessKeyInputRef?.current?.value || ''
     if (!accessKey) {
       closeSecretDialog()
       alert('Empty access key. Please provide a value')
-      return;
+      return
     }
     if (!secretAccessKey) {
       closeSecretDialog()
       alert('Empty secret access key. Please provide a value')
-      return;
+      return
     }
     if (accessKeyRef.current && accessKey === accessKeyRef.current) {
       closeSecretDialog()
       alert('Access key is duplicate. Please provide different value')
-      return;
+      return
     }
     if (secretAccessKeyRef.current && secretAccessKey === secretAccessKeyRef.current) {
       closeSecretDialog()
       alert('Secret access key is duplicate. Please provide different value')
-      return;
+      return
     }
     accessKeyRef.current = accessKey
     secretAccessKeyRef.current = secretAccessKey
-    const resp = await fetch(
-      `${config.API_BASE_URL}/version/v1/credential`,
-      {
-        method: "POST",
-        headers: {},
-        data: {
-          accessKey,
-          secretAccessKey
-        },
-      }
-    )
-    credentialRef.current = (await resp.json())?.id || ""
+    const resp = await fetch(`${config.API_BASE_URL}/version/v1/credential`, {
+      method: 'POST',
+      headers: {},
+      data: {
+        accessKey,
+        secretAccessKey,
+      },
+    })
+    credentialRef.current = (await resp.json())?.id || ''
     await fetchAnalysis()
     closeSecretDialog()
   }
@@ -105,14 +94,26 @@ function App() {
   return (
     <div className="cspm">
       <div className="top-panel">
-        <button className="refresh-button" onClick={fetchAnalysis} disabled={!credentialRef.current}>
+        <button
+          className="refresh-button"
+          onClick={fetchAnalysis}
+          disabled={!credentialRef.current}
+        >
           <img src={refresh} />
         </button>
         <dialog ref={dialogElementRef} className="secrets-dialog">
           <p>AWS Access Key</p>
-          <input ref={accessKeyInputRef} className="secrets-dialog-access-key" placeholder="Value" />
+          <input
+            ref={accessKeyInputRef}
+            className="secrets-dialog-access-key"
+            placeholder="Value"
+          />
           <p>AWS Secret Access Key</p>
-          <input ref={secretAccessKeyInputRef} className="secrets-dialog-secret-access-key" placeholder="Value" />
+          <input
+            ref={secretAccessKeyInputRef}
+            className="secrets-dialog-secret-access-key"
+            placeholder="Value"
+          />
           <p>Message [Optional]</p>
           <input className="secrets-dialog-message" placeholder="Value" />
           <div className="secrets-dialog-buttons">
