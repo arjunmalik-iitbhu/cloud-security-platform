@@ -15,8 +15,9 @@ class CredentialCreateReq(BaseSchema):
     Data Transfer Object for creating a new credential.
     """
 
-    name: str
-    movie_ids: Optional[list[int]] = None
+    cloud_name: str
+    access_key: Optional[str] = None
+    secret_access_key: Optional[str] = None
 
 
 class AnalysisCreateReq(BaseSchema):

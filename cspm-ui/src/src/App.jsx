@@ -82,6 +82,7 @@ function App() {
       method: 'POST',
       headers: {},
       data: {
+        cloudName: "Amazon Web Services",
         accessKey,
         secretAccessKey,
       },
