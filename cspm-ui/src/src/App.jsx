@@ -11,10 +11,13 @@ const config = {
   API_BASE_URL: import.meta.API_BASE_URL,
 }
 
+const RISK_LOW = 'low'
+const RISK_HIGH = 'high'
+
 const OPTIONS = [
   { value: 'all', name: 'All Risk' },
-  { value: 'low-risk', name: 'Low Risk' },
-  { value: 'high-risk', name: 'High Risk' },
+  { value: RISK_LOW, name: 'Low Risk' },
+  { value: RISK_HIGH, name: 'High Risk' },
 ]
 
 function App() {
@@ -43,8 +46,8 @@ function App() {
     })
     const { resources } = (await resp.json()) || {}
     setScannedAssets(resources.length)
-    setLowRiskAssets(resources.filter((elem) => elem.currentResourceRisk === 'low').length)
-    setHighRiskAssets(resources.filter((elem) => elem.currentResourceRisk === 'high').length)
+    setLowRiskAssets(resources.filter((elem) => elem.currentResourceRisk === RISK_LOW).length)
+    setHighRiskAssets(resources.filter((elem) => elem.currentResourceRisk === RISK_HIGH).length)
     setResources(resources)
   }
   const showSecretDialog = () => {
