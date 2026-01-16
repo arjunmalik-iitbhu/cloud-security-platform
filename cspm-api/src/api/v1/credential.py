@@ -5,8 +5,9 @@ from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.deps import get_session
 from src.dto import CredentialCreateReq, CredentialRes
-from src.model.entity import Credential, Resource, Cloud
+from src.model.entity import Credential, Resource, Cloud, Analysis
 from utils import fetch_resources
+from constants import RESOURCE_TYPE_S3, RESOURCE_TYPE_EC2, AWS_NAME
 
 router = APIRouter(
     tags=["credentials"],
@@ -55,6 +56,51 @@ async def update_credential(
     return HTTPException(status_code=403, detail=f"Operation forbidden")
 
 
+async def _set_analyses(
+    session: AsyncSession,
+    cloud_name: str,
+    credential: Credential,
+    resources: list[Resource]
+):
+    """
+    Updates database with analyses
+
+    Processes resources to find a compliance status based on the following policies:
+    1. Policy A (Compute): If an EC2 instance is running AND is public-facing, Mark as "High Risk". Otherwise: "Low Risk".
+    2. Policy B (Storage): Mark as "High Risk" if any of the following are true:
+        a. Server-Side Encryption is disabled.
+        b. The bucket is Publicly Accessible.
+        c. Server Access Logging is disabled.
+        d. Bucket Versioning is disabled.
+    Otherwise: "Low Risk".
+    """
+    if cloud_name != AWS_NAME:
+        return
+    for resource in resources:
+        if resource.type == RESOURCE_TYPE_EC2:
+            analysis = Analysis(
+                credential_id=credential.id,
+                resource_id=resource.id,
+                current_resource_status=("running" if resource.details["State"]["Name"] == "running" else "stopped"),
+                current_resource_risk=("high" if resource.details["State"]["Name"] == "running" and resource.details["PublicIpAddress"] else "low"),
+            )
+        elif resource.type == RESOURCE_TYPE_S3:
+            analysis = Analysis(
+                credential_id=credential.id,
+                resource_id=resource.id,
+                current_resource_status=("running" if resource.details["BucketRegion"] and resource.details["CreationDate"] else "stopped"),
+                current_resource_risk=(
+                    "high"
+                    if not resource.details["ServerSideEncryptionConfiguration"]["Rules"][0]["ApplyServerSideEncryptionByDefault"]
+                    or resource.details["PolicyStatus"]["IsPublic"]
+                    or not resource.details["LoggingEnabled"]["TargetBucket"]
+                    or resource.details["Versioning"]["Status"] == "Suspended"
+                    else "low"
+                ),
+            )
+        session.add(analysis)
+        await session.commit()
+
 @router.post(
     "/credential", response_model=Credential, status_code=status.HTTP_201_CREATED
 )
@@ -73,8 +119,10 @@ async def create_credential(
     for resource in resources:
         session.add(resource)
         await session.commit()
+        await session.refresh(resource)
     credential = Credential(**credentialReq.model_dump(by_alias=False))
     session.add(credential)
     await session.commit()
     await session.refresh(credential)
+    _set_analyses(session, credentialReq.cloud_name, credential, resources)
     return credential

@@ -32,9 +32,11 @@ class AWSScanner(CloudScanner):
                     **s3_client.get_bucket_logging(
                         Bucket=bucket["Name"]
                     ),
-                    **s3_client.get_bucket_versioning(
-                        Bucket=bucket["Name"]
-                    )
+                    **{
+                        "Versioning": s3_client.get_bucket_versioning(
+                            Bucket=bucket["Name"]
+                        )
+                    }
                 }),
                 cloud_id=cloud_id,
                 external_resource_id=bucket["BucketArn"],
