@@ -41,10 +41,10 @@ function App() {
         resourceRisk: riskFilterRef.current,
       },
     })
-    const { scannedAssets, lowRiskAssets, highRiskAssets, resources } = (await resp.json()) || {}
-    setScannedAssets(scannedAssets)
-    setLowRiskAssets(lowRiskAssets)
-    setHighRiskAssets(highRiskAssets)
+    const { resources } = (await resp.json()) || {}
+    setScannedAssets(resources.length)
+    setLowRiskAssets(resources.filter(elem => elem.currentResourceRisk === "low").length)
+    setHighRiskAssets(resources.filter(elem => elem.currentResourceRisk === "high").length)
     setResources(resources)
   }
   const showSecretDialog = () => {
