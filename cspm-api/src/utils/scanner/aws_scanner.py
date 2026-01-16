@@ -17,15 +17,15 @@ class AWSScanner(CloudScanner):
         response = s3_client.list_buckets()
         buckets = [bucket for bucket in response.get("Buckets", [])]
         ec2_client = session.client("ec2")
-        response = ec2_client.describe_instances()
         instances = [
             {
-                id: instance["InstanceId"],
-                state: instance["State"]["Name"],
-                type: instance["InstanceType"],
-                instance: instance
+                "id": instance["InstanceId"],
+                "state": instance["State"]["Name"],
+                "type": instance["InstanceType"],
+                "instance": instance
             }
-            for reservation in response["Reservations"]
+            for region in ec2_client.describe_regions()["Regions"]
+            for reservation in session.client("ec2", region_name=region["RegionName"]).describe_instances()["Reservations"]
             for instance in reservation["Instances"]
         ]
         return {
