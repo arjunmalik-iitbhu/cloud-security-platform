@@ -7,4 +7,4 @@ router = APIRouter(
     dependencies=[],
 )
 
-# router.include_router(v1.router)
+router.include_router(v1.router)
