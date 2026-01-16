@@ -5,6 +5,11 @@ import json
 from src.model.entity import Resource
 from src.constants import RESOURCE_TYPE_S3, RESOURCE_TYPE_EC2
 
+def get_value_or_default(func, default, *args, **kwargs):
+    try:
+        return func(*args, **kwargs)
+    except Exception:
+        return default
 
 class AWSScanner(CloudScanner):
     @staticmethod
@@ -27,14 +32,10 @@ class AWSScanner(CloudScanner):
                 details=json.dumps(
                     {
                         **bucket,
-                        **s3_client.get_bucket_encryption(Bucket=bucket["Name"]),
-                        **s3_client.get_bucket_policy_status(Bucket=bucket["Name"]),
-                        **s3_client.get_bucket_logging(Bucket=bucket["Name"]),
-                        **{
-                            "Versioning": s3_client.get_bucket_versioning(
-                                Bucket=bucket["Name"]
-                            )
-                        },
+                        **get_value_or_default(s3_client.get_bucket_encryption, {}, Bucket=bucket["Name"]),
+                        **get_value_or_default(s3_client.get_bucket_policy_status, {}, Bucket=bucket["Name"])
+                        **get_value_or_default(s3_client.get_bucket_logging, {}, Bucket=bucket["Name"]),
+                        **{"Versioning": get_value_or_default(s3_client.get_bucket_versioning, {}, Bucket=bucket["Name"])},
                     }
                 ),
                 cloud_id=cloud_id,
