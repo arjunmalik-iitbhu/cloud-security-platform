@@ -15,7 +15,9 @@ class AWSScanner(CloudScanner):
         if not access_key or not secret_access_key:
             raise Exception("Empty access key or secret access key")
         session = boto3.session.Session(
-            aws_access_key_id=access_key, aws_secret_access_key=secret_access_key, region_name=region
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_access_key,
+            region_name=region,
         )
         s3_client = session.client(RESOURCE_TYPE_S3)
         response = s3_client.list_buckets()

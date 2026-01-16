@@ -8,7 +8,15 @@ from src.deps import get_session
 from src.dto import CredentialCreateReq, CredentialRes
 from src.model.entity import Credential, Resource, Cloud, Analysis
 from src.utils import fetch_resources
-from src.constants import RESOURCE_TYPE_S3, RESOURCE_TYPE_EC2, AWS_NAME, RISK_LOW, RISK_HIGH, STATUS_RUNNING, STATUS_STOPPED
+from src.constants import (
+    RESOURCE_TYPE_S3,
+    RESOURCE_TYPE_EC2,
+    AWS_NAME,
+    RISK_LOW,
+    RISK_HIGH,
+    STATUS_RUNNING,
+    STATUS_STOPPED,
+)
 
 router = APIRouter(
     tags=["credentials"],
@@ -143,9 +151,7 @@ async def create_credential(
         await session.commit()
         await session.refresh(resource)
     credential = Credential(
-        name=str(uuid4()),
-        cloud_id=cloud.id,
-        **credentialReq.model_dump(by_alias=False)
+        name=str(uuid4()), cloud_id=cloud.id, **credentialReq.model_dump(by_alias=False)
     )
     session.add(credential)
     await session.commit()
