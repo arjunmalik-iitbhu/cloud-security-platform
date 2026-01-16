@@ -38,11 +38,13 @@ function App() {
     if (!credentialRef.current) throw new Error('Empty credential id')
     const resp = await fetch(`${config.API_BASE_URL}/version/v1/analysis`, {
       method: 'POST',
-      headers: {},
-      data: {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
         credentialId: credentialRef.current,
         resourceRisk: riskFilterRef.current,
-      },
+      }),
     })
     const { resources } = (await resp.json()) || {}
     setScannedAssets(resources.length)
@@ -83,12 +85,14 @@ function App() {
     secretAccessKeyRef.current = secretAccessKey
     const resp = await fetch(`${config.API_BASE_URL}/version/v1/credential`, {
       method: 'POST',
-      headers: {},
-      data: {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
         cloudName: 'Amazon Web Services',
         accessKey,
         secretAccessKey,
-      },
+      }),
     })
     credentialRef.current = (await resp.json())?.id || ''
     await fetchAnalysis()
