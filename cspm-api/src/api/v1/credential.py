@@ -65,12 +65,11 @@ async def update_credential(
     return HTTPException(status_code=403, detail=f"Operation forbidden")
 
 
-async def _set_analyses(
-    session: AsyncSession,
+async def _get_analyses(
     cloud_name: str,
     credential: Credential,
     resources: list[Resource],
-):
+) -> list[Analysis]:
     """
     Updates database with analyses
 
@@ -85,50 +84,56 @@ async def _set_analyses(
     """
     if cloud_name != AWS_NAME:
         return
+    analyses = []
     for resource in resources:
-        if resource.type == RESOURCE_TYPE_EC2:
+        print("resource", resource)
+        resource_id = resource["id"]
+        resource_type = resource["type"]
+        resource_details = resource["details"]
+        if resource_type == RESOURCE_TYPE_EC2:
             analysis = Analysis(
                 credential_id=credential.id,
-                resource_id=resource.id,
+                resource_id=resource_id,
                 current_resource_status=(
                     STATUS_RUNNING
-                    if resource.details.get("State", {}).get("Name", "")
+                    if resource_details.get("State", {}).get("Name", "")
                     == STATUS_RUNNING
                     else STATUS_STOPPED
                 ),
                 current_resource_risk=(
                     RISK_HIGH
-                    if resource.details.get("State", {}).get("Name", "") == "running"
-                    and resource.details.get("PublicIpAddress", None)
+                    if resource_details.get("State", {}).get("Name", "") == "running"
+                    and resource_details.get("PublicIpAddress", None)
                     else RISK_LOW
                 ),
             )
-        elif resource.type == RESOURCE_TYPE_S3:
+            analyses.append(analysis)
+        elif resource_type == RESOURCE_TYPE_S3:
             analysis = Analysis(
                 credential_id=credential.id,
-                resource_id=resource.id,
+                resource_id=resource_id,
                 current_resource_status=(
                     STATUS_RUNNING
-                    if resource.details["BucketRegion"]
-                    and resource.details["CreationDate"]
+                    if resource_details["BucketRegion"]
+                    and resource_details["CreationDate"]
                     else STATUS_STOPPED
                 ),
                 current_resource_risk=(
                     RISK_HIGH
-                    if not resource.details.get("ServerSideEncryptionConfiguration", {})
+                    if not resource_details.get("ServerSideEncryptionConfiguration", {})
                     .get("Rules", [])[0]
                     .get("ApplyServerSideEncryptionByDefault", None)
-                    or resource.details.get("PolicyStatus", {}).get("IsPublic", None)
-                    or not resource.details.get("LoggingEnabled", {}).get(
+                    or resource_details.get("PolicyStatus", {}).get("IsPublic", None)
+                    or not resource_details.get("LoggingEnabled", {}).get(
                         "TargetBucket", None
                     )
-                    or resource.details.get("Versioning", {}).get("Status", None)
+                    or resource_details.get("Versioning", {}).get("Status", None)
                     == "Suspended"
                     else RISK_LOW
                 ),
             )
-        session.add(analysis)
-        await session.commit()
+            analyses.append(analysis)
+    return analyses
 
 
 @router.post(
@@ -141,8 +146,9 @@ async def create_credential(
         select(Cloud).where(Cloud.name == credentialReq.cloud_name)
     )
     cloud = cloud_result.first()
+    cloud_id = cloud.id
     resources = fetch_resources(
-        cloud.id,
+        cloud_id,
         credentialReq.cloud_name,
         {
             "access_key": credentialReq.access_key,
@@ -150,15 +156,21 @@ async def create_credential(
             "region": credentialReq.region,
         },
     )
+    dumped_resources = []
     for resource in resources:
         session.add(resource)
         await session.commit()
         await session.refresh(resource)
+        dumped_resources.append(resource)
+    await session.refresh(cloud)
     credential = Credential(
-        name=str(uuid4()), cloud_id=cloud.id, **credentialReq.model_dump(by_alias=False)
+        name=str(uuid4()), cloud_id=cloud_id, **credentialReq.model_dump(by_alias=False)
     )
     session.add(credential)
     await session.commit()
     await session.refresh(credential)
-    await _set_analyses(session, credentialReq.cloud_name, credential, resources)
+    analyses = await _get_analyses(credentialReq.cloud_name, credential, dumped_resources)
+    for analysis in analyses:
+        session.add(analysis)
+        await session.commit()
     return credential

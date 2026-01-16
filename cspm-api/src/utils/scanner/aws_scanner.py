@@ -41,8 +41,8 @@ class AWSScanner(CloudScanner):
                             s3_client.get_bucket_policy_status,
                             {},
                             Bucket=bucket["Name"],
-                        )
-                        ** get_value_or_default(
+                        ),
+                        **get_value_or_default(
                             s3_client.get_bucket_logging, {}, Bucket=bucket["Name"]
                         ),
                         **{
@@ -52,7 +52,8 @@ class AWSScanner(CloudScanner):
                                 Bucket=bucket["Name"],
                             )
                         },
-                    }
+                    },
+                    default=str
                 ),
                 cloud_id=cloud_id,
                 external_resource_id=bucket["BucketArn"],
@@ -63,7 +64,7 @@ class AWSScanner(CloudScanner):
         instances = [
             Resource(
                 type=RESOURCE_TYPE_EC2,
-                details=json.dumps(instance),
+                details=json.dumps(instance, default=str),
                 cloud_id=cloud_id,
                 external_resource_id=instance["InstanceId"],
             )
