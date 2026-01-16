@@ -43,8 +43,8 @@ function App() {
     })
     const { resources } = (await resp.json()) || {}
     setScannedAssets(resources.length)
-    setLowRiskAssets(resources.filter(elem => elem.currentResourceRisk === "low").length)
-    setHighRiskAssets(resources.filter(elem => elem.currentResourceRisk === "high").length)
+    setLowRiskAssets(resources.filter((elem) => elem.currentResourceRisk === 'low').length)
+    setHighRiskAssets(resources.filter((elem) => elem.currentResourceRisk === 'high').length)
     setResources(resources)
   }
   const showSecretDialog = () => {
@@ -82,7 +82,7 @@ function App() {
       method: 'POST',
       headers: {},
       data: {
-        cloudName: "Amazon Web Services",
+        cloudName: 'Amazon Web Services',
         accessKey,
         secretAccessKey,
       },
