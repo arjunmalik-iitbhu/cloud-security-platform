@@ -1,10 +1,15 @@
 from typing import Any
 from .scanner import CloudScanner
 import boto3
+import json
+from src.model.entity import Resource
+
+RESOURCE_TYPE_S3 = "s3"
+RESOURCE_TYPE_EC2 = "ec2"
 
 class AWSScanner(CloudScanner):
     @staticmethod
-    def get_resources(credential: dict[str,Any]) -> dict[str,Any]:
+    def get_resources(cloud_id: int, credential: dict[str,Any]) -> list[Resource]:
         access_key = credential.get("access_key", None)
         secret_access_key = credential.get("secret_access_key", None)
         if not access_key or not secret_access_key:
@@ -13,22 +18,30 @@ class AWSScanner(CloudScanner):
             aws_access_key_id=access_key,
             aws_secret_access_key=secret_access_key
         )
-        s3_client = session.client("s3")
+        s3_client = session.client(RESOURCE_TYPE_S3)
         response = s3_client.list_buckets()
-        buckets = [bucket for bucket in response.get("Buckets", [])]
-        ec2_client = session.client("ec2")
+        buckets = [
+            Resource(
+                type=RESOURCE_TYPE_S3,
+                details=json.dumps(bucket),
+                cloud_id=cloud_id,
+                external_resource_id=bucket["BucketArn"],
+            )
+            for bucket in response.get("Buckets", [])
+        ]
+        ec2_client = session.client(RESOURCE_TYPE_EC2)
         instances = [
-            {
-                "id": instance["InstanceId"],
-                "state": instance["State"]["Name"],
-                "type": instance["InstanceType"],
-                "instance": instance
-            }
+            Resource(
+                type=RESOURCE_TYPE_EC2,
+                details=json.dumps(instance),
+                cloud_id=cloud_id,
+                external_resource_id=instance["InstanceId"],
+            )
             for region in ec2_client.describe_regions()["Regions"]
-            for reservation in session.client("ec2", region_name=region["RegionName"]).describe_instances()["Reservations"]
+            for reservation in session.client(RESOURCE_TYPE_EC2, region_name=region["RegionName"]).describe_instances()["Reservations"]
             for instance in reservation["Instances"]
         ]
-        return {
-            "buckets": buckets,
-            "instances": instances
-        }
+        return [
+            *buckets[:],
+            *instances[:]
+        ]

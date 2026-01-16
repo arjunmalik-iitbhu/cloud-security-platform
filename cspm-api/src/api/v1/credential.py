@@ -5,7 +5,8 @@ from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.deps import get_session
 from src.dto import CredentialCreateReq, CredentialRes
-from src.model.entity import Credential
+from src.model.entity import Credential, Resource, Cloud
+from utils import fetch_resources
 
 router = APIRouter(
     tags=["credentials"],
@@ -60,6 +61,18 @@ async def update_credential(
 async def create_credential(
     credentialReq: CredentialCreateReq, session: AsyncSession = Depends(get_session)
 ):
+    cloud_result = await session.exec(
+        select(Cloud).where(Cloud.name == credentialReq.cloud_name)
+    )
+    cloud = cloud_result.first()
+    resources = fetch_resources(
+        cloud.id,
+        credentialReq.cloud_name,
+        {"access_key": credentialReq.access_key, "secret_access_key": credentialReq.secret_access_key}
+    )
+    for resource in resources:
+        session.add(resource)
+        await session.commit()
     credential = Credential(**credentialReq.model_dump(by_alias=False))
     session.add(credential)
     await session.commit()

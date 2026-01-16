@@ -57,3 +57,10 @@ async def create_analysis(
     await session.commit()
     await session.refresh(analysis)
     return analysis
+
+# {
+#     "id": instance["InstanceId"],
+#     "state": instance["State"]["Name"],
+#     "type": instance["InstanceType"],
+#     "instance": instance
+# }
