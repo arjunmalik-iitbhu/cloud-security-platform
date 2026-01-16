@@ -24,6 +24,7 @@ function App() {
   const dialogElementRef = useRef(null)
   const accessKeyInputRef = useRef(null)
   const secretAccessKeyInputRef = useRef(null)
+  const regionInputRef = useRef(null)
 
   const credentialRef = useRef('')
   const accessKeyRef = useRef('')
@@ -61,6 +62,7 @@ function App() {
   const onSubmit = async () => {
     const accessKey = accessKeyInputRef?.current?.value || ''
     const secretAccessKey = secretAccessKeyInputRef?.current?.value || ''
+    const region = regionInputRef?.current?.value || ''
     if (!accessKey) {
       closeSecretDialog()
       alert('Empty access key. Please provide a value')
@@ -92,6 +94,7 @@ function App() {
         cloudName: 'Amazon Web Services',
         accessKey,
         secretAccessKey,
+        region,
       }),
     })
     credentialRef.current = (await resp.json())?.id || ''
@@ -120,6 +123,12 @@ function App() {
           <input
             ref={secretAccessKeyInputRef}
             className="secrets-dialog-secret-access-key"
+            placeholder="Value"
+          />
+          <p>Region</p>
+          <input
+            ref={regionInputRef}
+            className="secrets-dialog-region"
             placeholder="Value"
           />
           <p>Message [Optional]</p>

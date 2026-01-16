@@ -11,10 +11,11 @@ class AWSScanner(CloudScanner):
     def get_resources(cloud_id: int, credential: dict[str, Any]) -> list[Resource]:
         access_key = credential.get("access_key", None)
         secret_access_key = credential.get("secret_access_key", None)
+        region = credential.get("region", "us-east-1")
         if not access_key or not secret_access_key:
             raise Exception("Empty access key or secret access key")
         session = boto3.session.Session(
-            aws_access_key_id=access_key, aws_secret_access_key=secret_access_key
+            aws_access_key_id=access_key, aws_secret_access_key=secret_access_key, region=region
         )
         s3_client = session.client(RESOURCE_TYPE_S3)
         response = s3_client.list_buckets()

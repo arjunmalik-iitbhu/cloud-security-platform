@@ -134,6 +134,7 @@ async def create_credential(
         {
             "access_key": credentialReq.access_key,
             "secret_access_key": credentialReq.secret_access_key,
+            "region": credentialReq.region,
         },
     )
     for resource in resources:

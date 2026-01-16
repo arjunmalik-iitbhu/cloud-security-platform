@@ -18,6 +18,7 @@ class CredentialCreateReq(BaseSchema):
     cloud_name: str
     access_key: Optional[str] = None
     secret_access_key: Optional[str] = None
+    region: Optional[str] = None
 
 
 class AnalysisGetReq(BaseSchema):
