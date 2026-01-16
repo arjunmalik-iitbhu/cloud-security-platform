@@ -142,9 +142,13 @@ async def create_credential(
         session.add(resource)
         await session.commit()
         await session.refresh(resource)
-    credential = Credential(name=str(uuid4()), **credentialReq.model_dump(by_alias=False))
+    credential = Credential(
+        name=str(uuid4()),
+        cloud_id=cloud.id,
+        **credentialReq.model_dump(by_alias=False)
+    )
     session.add(credential)
     await session.commit()
     await session.refresh(credential)
-    _set_analyses(session, credentialReq.cloud_name, credential, resources)
+    await _set_analyses(session, credentialReq.cloud_name, credential, resources)
     return credential
