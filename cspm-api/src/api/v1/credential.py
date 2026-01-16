@@ -1,3 +1,4 @@
+from uuid import uuid4
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -141,7 +142,7 @@ async def create_credential(
         session.add(resource)
         await session.commit()
         await session.refresh(resource)
-    credential = Credential(**credentialReq.model_dump(by_alias=False))
+    credential = Credential(name=str(uuid4()), **credentialReq.model_dump(by_alias=False))
     session.add(credential)
     await session.commit()
     await session.refresh(credential)
