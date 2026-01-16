@@ -7,7 +7,7 @@ from src.deps import get_session
 from src.dto import CredentialCreateReq, CredentialRes
 from src.model.entity import Credential, Resource, Cloud, Analysis
 from src.utils import fetch_resources
-from src.constants import RESOURCE_TYPE_S3, RESOURCE_TYPE_EC2, AWS_NAME
+from src.constants import RESOURCE_TYPE_S3, RESOURCE_TYPE_EC2, AWS_NAME, RISK_LOW, RISK_HIGH, STATUS_RUNNING, STATUS_STOPPED
 
 router = APIRouter(
     tags=["credentials"],
@@ -82,15 +82,15 @@ async def _set_analyses(
                 credential_id=credential.id,
                 resource_id=resource.id,
                 current_resource_status=(
-                    "running"
-                    if resource.details["State"]["Name"] == "running"
-                    else "stopped"
+                    STATUS_RUNNING
+                    if resource.details["State"]["Name"] == STATUS_RUNNING
+                    else STATUS_STOPPED
                 ),
                 current_resource_risk=(
-                    "high"
+                    RISK_HIGH
                     if resource.details["State"]["Name"] == "running"
                     and resource.details["PublicIpAddress"]
-                    else "low"
+                    else RISK_LOW
                 ),
             )
         elif resource.type == RESOURCE_TYPE_S3:
@@ -98,20 +98,20 @@ async def _set_analyses(
                 credential_id=credential.id,
                 resource_id=resource.id,
                 current_resource_status=(
-                    "running"
+                    STATUS_RUNNING
                     if resource.details["BucketRegion"]
                     and resource.details["CreationDate"]
-                    else "stopped"
+                    else STATUS_STOPPED
                 ),
                 current_resource_risk=(
-                    "high"
+                    RISK_HIGH
                     if not resource.details["ServerSideEncryptionConfiguration"][
                         "Rules"
                     ][0]["ApplyServerSideEncryptionByDefault"]
                     or resource.details["PolicyStatus"]["IsPublic"]
                     or not resource.details["LoggingEnabled"]["TargetBucket"]
                     or resource.details["Versioning"]["Status"] == "Suspended"
-                    else "low"
+                    else RISK_LOW
                 ),
             )
         session.add(analysis)

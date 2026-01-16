@@ -1,3 +1,7 @@
 AWS_NAME = "Amazon Web Services"
 RESOURCE_TYPE_S3 = "s3"
 RESOURCE_TYPE_EC2 = "ec2"
+RISK_LOW = "low"
+RISK_HIGH = "high"
+STATUS_RUNNING = "running"
+STATUS_STOPPED = "running"
