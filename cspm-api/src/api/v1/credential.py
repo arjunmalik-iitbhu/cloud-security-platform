@@ -92,13 +92,13 @@ async def _set_analyses(
                 resource_id=resource.id,
                 current_resource_status=(
                     STATUS_RUNNING
-                    if resource.details["State"]["Name"] == STATUS_RUNNING
+                    if resource.details.get("State", {}).get("Name", "") == STATUS_RUNNING
                     else STATUS_STOPPED
                 ),
                 current_resource_risk=(
                     RISK_HIGH
-                    if resource.details["State"]["Name"] == "running"
-                    and resource.details["PublicIpAddress"]
+                    if resource.details.get("State", {}).get("Name", "") == "running"
+                    and resource.details.get("PublicIpAddress", None)
                     else RISK_LOW
                 ),
             )
@@ -114,12 +114,10 @@ async def _set_analyses(
                 ),
                 current_resource_risk=(
                     RISK_HIGH
-                    if not resource.details["ServerSideEncryptionConfiguration"][
-                        "Rules"
-                    ][0]["ApplyServerSideEncryptionByDefault"]
-                    or resource.details["PolicyStatus"]["IsPublic"]
-                    or not resource.details["LoggingEnabled"]["TargetBucket"]
-                    or resource.details["Versioning"]["Status"] == "Suspended"
+                    if not resource.details.get("ServerSideEncryptionConfiguration", {}).get("Rules", [])[0].get("ApplyServerSideEncryptionByDefault", None)
+                    or resource.details.get("PolicyStatus", {}).get("IsPublic", None)
+                    or not resource.details.get("LoggingEnabled", {}).get("TargetBucket", None)
+                    or resource.details.get("Versioning", {}).get("Status", None) == "Suspended"
                     else RISK_LOW
                 ),
             )
