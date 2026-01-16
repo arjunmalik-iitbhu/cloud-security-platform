@@ -48,26 +48,25 @@ async def update_analysis(
 ):
     return HTTPException(status_code=403, detail=f"Operation forbidden")
 
+
 @router.post("/analysis", response_model=AnalysisRes)
 async def get_analysis(
     analysisReq: AnalysisGetReq, session: AsyncSession = Depends(get_session)
 ):
     result = await session.exec(
-        select(Analysis).options(
+        select(Analysis)
+        .options(
             joinedload(Analysis.resource_id),
-        ).where(Analysis.credential_id == int(analysisReq.credential_id))
+        )
+        .where(Analysis.credential_id == int(analysisReq.credential_id))
     )
     analyses = result.all()
     if not analyses:
-        raise HTTPException(status_code=404, detail=f"Analysis of {analysisReq.credential_id} not found")
-    resources= [
-        ResourceRes(
-            **analysis.resource.model_dump(),
-            **analysis.model_dump()
+        raise HTTPException(
+            status_code=404, detail=f"Analysis of {analysisReq.credential_id} not found"
         )
+    resources = [
+        ResourceRes(**analysis.resource.model_dump(), **analysis.model_dump())
         for analysis in analyses
     ]
-    return AnalysisRes(
-        credential_id=analysisReq.credential_id,
-        resources=resources
-    )
+    return AnalysisRes(credential_id=analysisReq.credential_id, resources=resources)

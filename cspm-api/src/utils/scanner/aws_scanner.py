@@ -3,41 +3,37 @@ from .scanner import CloudScanner
 import boto3
 import json
 from src.model.entity import Resource
-from constants import RESOURCE_TYPE_S3, RESOURCE_TYPE_EC2
+from src.constants import RESOURCE_TYPE_S3, RESOURCE_TYPE_EC2
+
 
 class AWSScanner(CloudScanner):
     @staticmethod
-    def get_resources(cloud_id: int, credential: dict[str,Any]) -> list[Resource]:
+    def get_resources(cloud_id: int, credential: dict[str, Any]) -> list[Resource]:
         access_key = credential.get("access_key", None)
         secret_access_key = credential.get("secret_access_key", None)
         if not access_key or not secret_access_key:
             raise Exception("Empty access key or secret access key")
         session = boto3.session.Session(
-            aws_access_key_id=access_key,
-            aws_secret_access_key=secret_access_key
+            aws_access_key_id=access_key, aws_secret_access_key=secret_access_key
         )
         s3_client = session.client(RESOURCE_TYPE_S3)
         response = s3_client.list_buckets()
         buckets = [
             Resource(
                 type=RESOURCE_TYPE_S3,
-                details=json.dumps({
-                    **bucket,
-                    **s3_client.get_bucket_encryption(
-                        Bucket=bucket["Name"]
-                    ),
-                    **s3_client.get_bucket_policy_status(
-                        Bucket=bucket["Name"]
-                    ),
-                    **s3_client.get_bucket_logging(
-                        Bucket=bucket["Name"]
-                    ),
-                    **{
-                        "Versioning": s3_client.get_bucket_versioning(
-                            Bucket=bucket["Name"]
-                        )
+                details=json.dumps(
+                    {
+                        **bucket,
+                        **s3_client.get_bucket_encryption(Bucket=bucket["Name"]),
+                        **s3_client.get_bucket_policy_status(Bucket=bucket["Name"]),
+                        **s3_client.get_bucket_logging(Bucket=bucket["Name"]),
+                        **{
+                            "Versioning": s3_client.get_bucket_versioning(
+                                Bucket=bucket["Name"]
+                            )
+                        },
                     }
-                }),
+                ),
                 cloud_id=cloud_id,
                 external_resource_id=bucket["BucketArn"],
             )
@@ -52,10 +48,9 @@ class AWSScanner(CloudScanner):
                 external_resource_id=instance["InstanceId"],
             )
             for region in ec2_client.describe_regions()["Regions"]
-            for reservation in session.client(RESOURCE_TYPE_EC2, region_name=region["RegionName"]).describe_instances()["Reservations"]
+            for reservation in session.client(
+                RESOURCE_TYPE_EC2, region_name=region["RegionName"]
+            ).describe_instances()["Reservations"]
             for instance in reservation["Instances"]
         ]
-        return [
-            *buckets[:],
-            *instances[:]
-        ]
+        return [*buckets[:], *instances[:]]

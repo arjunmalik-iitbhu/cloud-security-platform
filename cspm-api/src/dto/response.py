@@ -18,16 +18,19 @@ class CredentialRes(BaseSchema):
     id: int
     name: str
 
+
 class ResourceRes(BaseSchema):
     """
     Data Transfer Object for returning a resource.
     """
+
     type: str
     details: dict
     cloud_id: int
     external_resource_id: Optional[str]
     current_resource_status: Optional[str]
     current_resource_risk: Optional[str]
+
 
 class AnalysisRes(BaseSchema):
     """
