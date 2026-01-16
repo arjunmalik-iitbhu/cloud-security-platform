@@ -20,9 +20,10 @@ class CredentialCreateReq(BaseSchema):
     secret_access_key: Optional[str] = None
 
 
-class AnalysisCreateReq(BaseSchema):
+class AnalysisGetReq(BaseSchema):
     """
-    Data Transfer Object for creating a new analysis.
+    Data Transfer Object for returning a new analysis.
     """
 
-    name: str
+    credential_id: int
+    resource_risk: Optional[str] = "all"

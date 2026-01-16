@@ -4,8 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.deps import get_session
-from src.dto import AnalysisCreateReq, AnalysisRes
+from src.dto import AnalysisGetReq, AnalysisRes, ResourceRes
 from src.model.entity import Analysis
+from sqlalchemy.orm import joinedload
 
 router = APIRouter(
     tags=["analyses"],
@@ -47,20 +48,26 @@ async def update_analysis(
 ):
     return HTTPException(status_code=403, detail=f"Operation forbidden")
 
-
-@router.post("/analysis", response_model=Analysis, status_code=status.HTTP_201_CREATED)
-async def create_analysis(
-    analysisReq: AnalysisCreateReq, session: AsyncSession = Depends(get_session)
+@router.post("/analysis", response_model=AnalysisRes)
+async def get_analysis(
+    analysisReq: AnalysisGetReq, session: AsyncSession = Depends(get_session)
 ):
-    analysis = Analysis(**analysisReq.model_dump(by_alias=False))
-    session.add(analysis)
-    await session.commit()
-    await session.refresh(analysis)
-    return analysis
-
-# {
-#     "id": instance["InstanceId"],
-#     "state": instance["State"]["Name"],
-#     "type": instance["InstanceType"],
-#     "instance": instance
-# }
+    result = await session.exec(
+        select(Analysis).options(
+            joinedload(Analysis.resource_id),
+        ).where(Analysis.credential_id == int(analysisReq.credential_id))
+    )
+    analyses = result.all()
+    if not analyses:
+        raise HTTPException(status_code=404, detail=f"Analysis of {analysisReq.credential_id} not found")
+    resources= [
+        ResourceRes(
+            **analysis.resource.model_dump(),
+            **analysis.model_dump()
+        )
+        for analysis in analyses
+    ]
+    return AnalysisRes(
+        credential_id=analysisReq.credential_id,
+        resources=resources
+    )

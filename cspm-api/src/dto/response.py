@@ -12,17 +12,27 @@ class BaseSchema(BaseModel):
 
 class CredentialRes(BaseSchema):
     """
-    Data Transfer Object for returning a actor.
+    Data Transfer Object for returning a credential.
     """
 
     id: int
     name: str
 
+class ResourceRes(BaseSchema):
+    """
+    Data Transfer Object for returning a resource.
+    """
+    type: str
+    details: dict
+    cloud_id: int
+    external_resource_id: Optional[str]
+    current_resource_status: Optional[str]
+    current_resource_risk: Optional[str]
 
 class AnalysisRes(BaseSchema):
     """
-    Data Transfer Object for returning a director.
+    Data Transfer Object for returning a analysis.
     """
 
-    id: int
-    name: str
+    credential_id: int
+    resources: Optional[list[ResourceRes]] = []
