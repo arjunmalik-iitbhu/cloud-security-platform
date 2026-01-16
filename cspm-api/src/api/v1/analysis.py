@@ -56,7 +56,7 @@ async def get_analysis(
     result = await session.exec(
         select(Analysis)
         .options(
-            joinedload(Analysis.resource_id),
+            joinedload(Analysis.resource),
         )
         .where(Analysis.credential_id == int(analysisReq.credential_id))
     )
