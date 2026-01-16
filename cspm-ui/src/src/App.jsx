@@ -8,7 +8,7 @@ export { activity, moreDown, moreUp, refresh }
 import './App.css'
 
 const config = {
-  API_BASE_URL: import.meta.API_BASE_URL,
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
 }
 
 const RISK_LOW = 'low'
