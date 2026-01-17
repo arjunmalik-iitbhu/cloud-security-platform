@@ -1,5 +1,6 @@
 from uuid import uuid4
 from typing import Optional
+import json
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import col, select
@@ -89,7 +90,7 @@ async def _get_analyses(
         print("resource", resource)
         resource_id = resource["id"]
         resource_type = resource["type"]
-        resource_details = resource["details"]
+        resource_details = json.loads(resource["details"])
         if resource_type == RESOURCE_TYPE_EC2:
             analysis = Analysis(
                 credential_id=credential.id,
@@ -114,8 +115,8 @@ async def _get_analyses(
                 resource_id=resource_id,
                 current_resource_status=(
                     STATUS_RUNNING
-                    if resource_details["BucketRegion"]
-                    and resource_details["CreationDate"]
+                    if resource_details.get("BucketRegion", None)
+                    and resource_details.get("CreationDate", None)
                     else STATUS_STOPPED
                 ),
                 current_resource_risk=(
@@ -161,7 +162,7 @@ async def create_credential(
         session.add(resource)
         await session.commit()
         await session.refresh(resource)
-        dumped_resources.append(resource)
+        dumped_resources.append(resource.model_dump())
     await session.refresh(cloud)
     credential = Credential(
         name=str(uuid4()), cloud_id=cloud_id, **credentialReq.model_dump(by_alias=False)
@@ -173,4 +174,5 @@ async def create_credential(
     for analysis in analyses:
         session.add(analysis)
         await session.commit()
+    await session.refresh(credential)
     return credential

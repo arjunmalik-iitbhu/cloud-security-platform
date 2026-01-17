@@ -1,4 +1,5 @@
 from typing import Optional
+import json
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import col, select
@@ -65,8 +66,9 @@ async def get_analysis(
         raise HTTPException(
             status_code=404, detail=f"Analysis of {analysisReq.credential_id} not found"
         )
-    resources = [
-        ResourceRes(**analysis.resource.model_dump(), **analysis.model_dump())
-        for analysis in analyses
-    ]
+    resources = []
+    for analysis in analyses:
+        allkwargs = {**analysis.resource.model_dump(), **analysis.model_dump()}
+        allkwargs["details"] = json.loads(allkwargs["details"])
+        resources.append(ResourceRes(**allkwargs))
     return AnalysisRes(credential_id=analysisReq.credential_id, resources=resources)
