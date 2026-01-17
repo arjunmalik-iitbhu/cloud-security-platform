@@ -116,6 +116,22 @@ body {
     }
     .resources-table {
       margin: 1rem;
+      .resources-table-elem {
+        table-layout: fixed;
+        width: 99%;
+        margin: 10px auto;
+        border-collapse: collapse;
+        border-top: 1px solid #999999;
+        border-bottom: 1px solid #999999;
+        text-align: center;
+        th, td {
+          vertical-align: top;
+          padding: 0.3em;
+        }
+        tbody tr:nth-child(odd) {
+          background-color: #eeeeee;
+        }
+      }
       .resources-table-header {
       }
     }

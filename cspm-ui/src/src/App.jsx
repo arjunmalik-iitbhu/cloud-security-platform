@@ -180,7 +180,7 @@ function App() {
           </select>
         </div>
         <div className="resources-table">
-          <table>
+          <table className="resources-table-elem">
             <thead>
               <tr className="resources-table-header">
                 <th>Resource</th>
@@ -190,15 +190,12 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {resources.map(({ resource, type, status, risk }, id) => (
-                <tr id={id}>
-                  <td>
-                    {/* {getResourceIcon[type]} */}
-                    {resource}
-                  </td>
+              {resources.map(({ externalResourceId, details, type, currentResourceStatus, currentResourceRisk }, id) => (
+                <tr id={id} key={id}>
+                  <td>{externalResourceId}</td>
                   <td>{type}</td>
-                  <td>{status}</td>
-                  <td>{risk}</td>
+                  <td>{currentResourceStatus}</td>
+                  <td>{currentResourceRisk}</td>
                 </tr>
               ))}
             </tbody>
