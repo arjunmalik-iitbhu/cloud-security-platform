@@ -1,12 +1,14 @@
 :root {
   --primary-color: black;
   --color-white: white;
+  --color-soft-white: rgb(245, 241, 241);
   --color-black: black;
   --color-gray: gray;
   --color-yellow: rgb(221, 188, 80);
   --color-green: rgb(52, 143, 52);
   --color-red: rgb(202, 42, 42);
   --background-color-white: var(--color-white);
+  --background-color-soft-white: var(--color-soft-white);
   --background-color-black: var(--color-black);
   --background-color-yellow: var(--color-yellow);
   --background-color-green: var(--color-green);
@@ -121,15 +123,15 @@ body {
         width: 99%;
         margin: 10px auto;
         border-collapse: collapse;
-        border-top: 1px solid #999999;
-        border-bottom: 1px solid #999999;
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
         text-align: center;
         th, td {
           vertical-align: top;
           padding: 0.3em;
         }
         tbody tr:nth-child(odd) {
-          background-color: #eeeeee;
+          background-color: var(--background-color-soft-white);
         }
       }
       .resources-table-header {
