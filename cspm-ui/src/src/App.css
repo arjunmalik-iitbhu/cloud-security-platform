@@ -130,11 +130,6 @@ body {
           vertical-align: top;
           padding: 0.3em;
         }
-        tbody tr:nth-child(odd) {
-          background-color: var(--background-color-soft-white);
-        }
-      }
-      .resources-table-header {
       }
     }
   }

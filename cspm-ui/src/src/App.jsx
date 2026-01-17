@@ -192,20 +192,21 @@ function App() {
             </thead>
             <tbody>
               {resources.map(({ externalResourceId, details, type, currentResourceStatus, currentResourceRisk }, id) => (
-                [(
-                  <tr id={id} key={id}>
+                <tr id={id} key={id}>
                     <td>{externalResourceId}</td>
                     <td>{type}</td>
                     <td>{currentResourceStatus}</td>
                     <td>{currentResourceRisk}</td>
-                    <td><button onClick={() => {resourceRowRef.current = id}}>{ resourceRowRef.current === id ? <img src={moreUp}/> : <img src={moreDown}/>}</button></td>
+                    {/* <td><button onClick={() => {resourceRowRef.current = id}}>{ resourceRowRef.current === id ? <img src={moreUp}/> : <img src={moreDown}/>}</button></td> */}
                   </tr>
-                ), (
-                  <tr id={`${id}-subrow`} key={`${id}-subrow`} style={resourceRowRef.current === id ? {'display': 'table-row'} : {'display': 'none'}}>
-                    <td width={"80%"}>{JSON.stringify(details, null, 4)}</td>
-                  </tr>
-                )]
-              )).reduce((c, e) => c.concat(e), [])}
+              ))}
+              {/* // [
+              //   ,(
+              //     <tr id={`${id}-subrow`} key={`${id}-subrow`} style={resourceRowRef.current === id ? {'display': 'table-row'} : {'display': 'none'}}>
+              //       <td width={"80%"}>{JSON.stringify(details, null, 4)}</td>
+              //     </tr>
+              //   )
+              // ] */}
             </tbody>
           </table>
         </div>
