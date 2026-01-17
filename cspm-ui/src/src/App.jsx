@@ -196,7 +196,7 @@ function App() {
                     <td>{externalResourceId}</td>
                     <td>{type}</td>
                     <td>{currentResourceStatus}</td>
-                    <td>{currentResourceRisk}</td>
+                    <td>{currentResourceRisk === 'high' ? '🔴' : '🟢'}</td>
                     {/* <td><button onClick={() => {resourceRowRef.current = id}}>{ resourceRowRef.current === id ? <img src={moreUp}/> : <img src={moreDown}/>}</button></td> */}
                   </tr>
               ))}
