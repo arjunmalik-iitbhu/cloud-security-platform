@@ -41,7 +41,7 @@ function App() {
     const resp = await fetch(`${config.API_BASE_URL}/version/v1/analysis`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         credentialId: credentialRef.current,
@@ -89,7 +89,7 @@ function App() {
     const resp = await fetch(`${config.API_BASE_URL}/version/v1/credential`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         cloudName: 'Amazon Web Services',
@@ -127,11 +127,7 @@ function App() {
             placeholder="Value"
           />
           <p>Region</p>
-          <input
-            ref={regionInputRef}
-            className="secrets-dialog-region"
-            placeholder="Value"
-          />
+          <input ref={regionInputRef} className="secrets-dialog-region" placeholder="Value" />
           <p>Message [Optional]</p>
           <input className="secrets-dialog-message" placeholder="Value" />
           <div className="secrets-dialog-buttons">
@@ -191,15 +187,20 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {resources.map(({ externalResourceId, details, type, currentResourceStatus, currentResourceRisk }, id) => (
-                <tr id={id} key={id}>
+              {resources.map(
+                (
+                  { externalResourceId, details, type, currentResourceStatus, currentResourceRisk },
+                  id,
+                ) => (
+                  <tr id={id} key={id}>
                     <td>{externalResourceId}</td>
                     <td>{type}</td>
                     <td>{currentResourceStatus}</td>
                     <td>{currentResourceRisk === 'high' ? '🔴' : '🟢'}</td>
                     {/* <td><button onClick={() => {resourceRowRef.current = id}}>{ resourceRowRef.current === id ? <img src={moreUp}/> : <img src={moreDown}/>}</button></td> */}
                   </tr>
-              ))}
+                ),
+              )}
               {/* // [
               //   ,(
               //     <tr id={`${id}-subrow`} key={`${id}-subrow`} style={resourceRowRef.current === id ? {'display': 'table-row'} : {'display': 'none'}}>

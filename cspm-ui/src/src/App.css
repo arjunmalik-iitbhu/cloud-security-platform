@@ -126,7 +126,8 @@ body {
         border-top: 1px solid var(--border-color);
         border-bottom: 1px solid var(--border-color);
         text-align: center;
-        th, td {
+        th,
+        td {
           vertical-align: top;
           padding: 0.3em;
         }
