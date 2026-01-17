@@ -53,7 +53,7 @@ class AWSScanner(CloudScanner):
                             )
                         },
                     },
-                    default=str
+                    default=str,
                 ),
                 cloud_id=cloud_id,
                 external_resource_id=bucket["BucketArn"],

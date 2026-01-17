@@ -170,7 +170,9 @@ async def create_credential(
     session.add(credential)
     await session.commit()
     await session.refresh(credential)
-    analyses = await _get_analyses(credentialReq.cloud_name, credential, dumped_resources)
+    analyses = await _get_analyses(
+        credentialReq.cloud_name, credential, dumped_resources
+    )
     for analysis in analyses:
         session.add(analysis)
         await session.commit()
