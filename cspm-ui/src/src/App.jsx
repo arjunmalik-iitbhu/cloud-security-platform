@@ -47,7 +47,7 @@ function App() {
         resourceRisk: riskFilterRef.current,
       }),
     })
-    const { resources } = (await resp.json()) || {}
+    const { resources = [] } = (await resp.json()) || {}
     setScannedAssets(resources.length)
     setLowRiskAssets(resources.filter((elem) => elem.currentResourceRisk === RISK_LOW).length)
     setHighRiskAssets(resources.filter((elem) => elem.currentResourceRisk === RISK_HIGH).length)
